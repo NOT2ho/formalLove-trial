@@ -4,6 +4,7 @@ import System.Process
 import Data.List (elemIndex)
 import Control.Monad
 import System.IO
+import Distribution.Compat.Prelude (readMaybe)
 main :: IO ()
 main = startGame
 
@@ -12,19 +13,20 @@ main = startGame
 select ::[IO ()] -> IO ()
 select ios = do
     num <- getLine
-    let int = read num ::Int
-    case ios !? int of
+    let int = readMaybe num :: Maybe Int
+    case (ios !?) =<< int of
         Just io -> io
         Nothing -> putStr ("0 부터 " ++ show (length ios) ++ " 중에 고르세요 : ") >> select ios
 
 superSelect ::[Int] -> String-> [IO ()] -> IO ()
 superSelect is player ios = do
     num <- getLine
-    let int = read num ::Int
-    case ios !? int of
+    let int = readMaybe num :: Maybe Int
+    let jint = Just int
+    case (ios !?) =<< int of        
         Just io ->
                 if length is == 3 then sceneFinal player else
-                    (if int `elem` is then putStr "안 가 본 곳으로 가십시오." >> select ios else io)
+                    (if int `elem` jint then putStr "안 가 본 곳으로 가십시오." >> select ios else io)
         Nothing -> putStr ("0 부터 " ++ show (length ios) ++ " 중에 고르세요 : ") >> select ios
 
 
@@ -162,9 +164,9 @@ scene_ player= do
     entertoContinue
     printer 10 "메시지: [(2048 신작 얼리액세스!! 당신에게 특권을 드립니다.) ]"
     entertoContinue
-    printer 4 $ player ++ "이거 스팸 아냐?"
+    printer 4 $ player ++ ": 이거 스팸 아냐?"
     putStrLn "0. 메시지를 연다. \n 1. 메시지를 열지 않는다."
-    select [sceneNotOpened player]
+    select [scene1 player, sceneNotOpened player]
 
 
 sceneNotOpened :: String -> IO()
@@ -176,6 +178,7 @@ sceneNotOpened player = do
     mapM_ (printer 7) ["비서 로봇: 으악! 그냥 빨리 눌러요! "
                             , player ++ ": ... 알았어."]
     entertoContinue
+    scene1 player
 
 scene1 :: String -> IO ()
 scene1 player = do
@@ -252,7 +255,7 @@ scenePrototype ints player = do
     entertoContinue
 
     mapM_ (printer 10) ["프로토타입: 관리자님."
-                        , "프로토타입: str 라고 하시는 거"]
+                        , "프로토타입: " ++ str ++ " 라고 하시는 거"]
     printer 30 "프로토타입: 제가 다 녹음했습니다."
     entertoContinue
 
@@ -260,7 +263,7 @@ scenePrototype ints player = do
 
     mapM_ (printer 5) [player ++ ": 으악!"
                         , player ++ ": 당장 꺼."
-                        , player ++ "그건 왜 녹음한 거야!"]
+                        , player ++ ": 그건 왜 녹음한 거야!"]
     entertoContinue
     mapM_ (printer 5) ["프로토타입: 관리자님이 잠을 깨웠다는 증거입니다. 법정에 제출해야 해요."]
     entertoContinue
@@ -430,7 +433,7 @@ sceneJeong1 ints player = do
     printer 10 "당신은 불쌍해진 채로 시무룩해서 쫒겨났다.."
     printer 10 "어디로 가시겠습니까?"
     delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
-    superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad0 (1:ints) player]
+    superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad (1:ints) player]
 
 
 
@@ -449,8 +452,8 @@ sceneBroad0 ints player = do
 
     printer 20 "........"
     entertoContinue
-    mapM_ (printer 5) [player ++ "뭐지, 반응이 없는데?"
-                                , player ++ "한번 더 할까?" ]
+    mapM_ (printer 5) [player ++ ": 뭐지, 반응이 없는데?"
+                                , player ++ ": 한번 더 할까?" ]
 
     entertoContinue
     printer 25 "문이 열린다.."
@@ -459,19 +462,20 @@ sceneBroad0 ints player = do
     mapM_ (printer 5) ["남설: 관리자!"
                         ,"남설: 도대체 이 시간에 뭐하는 거야? 지금 새벽 2시라고." ]
     entertoContinue
-    mapM_ (printer 5) [player ++ "뭐?"
-                        ,player ++ "근데 설이는 왜 아직 여기에.." ]
+    mapM_ (printer 5) [player ++ ": 뭐?"
+                        ,player ++ ": 근데 설이는 왜 아직 여기에.." ]
     entertoContinue
 
     mapM_ (printer 5) ["남설: 책 읽느라 차를 놓쳤어."
                         , "남설: 아무튼, 책 읽는 데 방해되잖아!"
                         , "남설이 당신을 뽕망치로 때리려고 한다." ]
-
+    printer 2 "0. 사과한다."
+    printer 2 "1. 사과하지 않는다."
     select [seol0 ints player, seol1 player]
 
 seol0 :: [Int] -> String ->  IO ()
 seol0 ints  player = do
-    mapM_ (printer 5) [player ++ "미안! 미안해!!"
+    mapM_ (printer 5) [player ++ ": 미안! 미안해!!"
                                 , "남설: 이번만 봐 줄게.."
                                 , "남설: 들어가서 잠이나 자." ]
     printer 10 "당신은 시무룩불쌍새끼고양이가 되어서 쫒겨났다.."
@@ -525,7 +529,7 @@ sceneFinal0 player = do
 
     entertoContinue
     seLoved
-    mapM_ (printer 10)  [player ++ ": "
+    mapM_ (printer 10)  [player ++ ": 준비됐어!"
                 , "게임 시작.."]
     entertoContinue
     mapM_ putStrLn ["·····················"
