@@ -16,7 +16,7 @@ select ios = do
     let int = readMaybe num :: Maybe Int
     case (ios !?) =<< int of
         Just io -> io
-        Nothing -> putStr ("0 부터 " ++ show (length ios) ++ " 중에 고르세요 : ") >> select ios
+        Nothing -> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> select ios
 
 superSelect ::[Int] -> String-> [IO ()] -> IO ()
 superSelect is player ios = do
@@ -27,7 +27,7 @@ superSelect is player ios = do
         Just io ->
                 if length is == 3 then sceneFinal player else
                     (if int `elem` jint then putStr "안 가 본 곳으로 가십시오." >> select ios else io)
-        Nothing -> putStr ("0 부터 " ++ show (length ios) ++ " 중에 고르세요 : ") >> select ios
+        Nothing -> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> select ios
 
 
 
@@ -72,18 +72,33 @@ printer _ _ = putStrLn ""
 
 startGame :: IO ()
 startGame = do
-    putStr "인코딩 설정 중.. 글자가 깨지면 사용자 문제입니다."
     system "chcp 65001"
     hSetEncoding stdout utf8
+    hSetBuffering stdout NoBuffering
+    putStrLn "인코딩 설정됨.. 글자가 깨지면 사용자 문제입니다."
+    putStrLn "이 게임은 테스트되지 않았습니다. \n문제가 발생했다면 https://github.com/NOT2ho/formalLove-trial 이나 https://x.com/MELC0chopper 로 알려 주십시오."
+    putStrLn ""
+    entertoContinue
     putStr "이름을 입력하세요 : "
     playerName <- getLine
+
+    printer 10 "..."
     printer 5 $ playerName ++ " 님 안녕하세요!"
-    hSetBuffering stdin NoBuffering
-    printer 5 "녹색물산 관리자가 되신 것을 환영합니다."
-    printer 5  "그럼 시작하겠습니다. ... 엔터 키를 누르세요."
-    hFlush stdout
+    printer 10 "이 게임은 <사랑은 포르말린에 담가서> 의 텍스트 버전 체험판입니다."
+    printer 2 "본게임은 현재 펀딩 중이며 https://tumblbug.com/formallove 에서 볼 수 있습니다! "
     entertoContinue
-    scene0 playerName
+    printer 20 ". . ."
+    printer 5 $ playerName ++ " 님..."
+
+    printer 5 "녹색물산 관리자가 되신 것을 환영합니다!"
+    printer 5  "그럼 시작하겠습니다. ...."
+    printer 20 ". . ."
+    printer 5  "0을 누르면 처음부터, 1을 누르면 중간 선택지부터 시작입니다."
+    putStr "선택: "
+    select [scene0 playerName, superSelect [] playerName [scenePrototype [] playerName, sceneJeong [] playerName, sceneBroad [] playerName]]
+
+    
+  
 
 delayPutStrLn :: Int -> String -> IO ()
 delayPutStrLn count str = do
@@ -131,6 +146,8 @@ scene0 player = do
     entertoContinue
     printer 10 "비서 로봇: 관리자님, 오늘은 월요일입니다."
     printer 3 "0: 비서 로봇을 망치로 때린다. \n1: 비서 로봇을 뿅망치로 때린다. \n2: 비서 로봇을 쓰다듬는다."
+    putStr "\n선택: "
+
     select [seDead player, sePP player, seLove player]
 
 
@@ -142,19 +159,21 @@ seDead player = do
     entertoContinue
     printer 5 "다시 하시겠습니까?"
     printer 5 "0: 다시 한다."
+    putStr "\n선택: "
+
     select [startGame]
 
 sePP :: String -> IO ()
 sePP player = do
     sePP_
-    printer 5 "관리자님, 그 장난감 좀 갖다 버리십시오."
+    printer 5 "비서 로봇: 관리자님, 그 장난감 좀 갖다 버리십시오."
     scene_ player
 
 
 seLove :: String -> IO ()
 seLove player = do
     seLoved
-    printer 20 "헤에.. 관리자님."
+    printer 20 "비서 로봇: 헤에.. 관리자님."
     scene_ player
 
 scene_ :: String -> IO ()
@@ -165,7 +184,9 @@ scene_ player= do
     printer 10 "메시지: [(2048 신작 얼리액세스!! 당신에게 특권을 드립니다.) ]"
     entertoContinue
     printer 4 $ player ++ ": 이거 스팸 아냐?"
-    putStrLn "0. 메시지를 연다. \n 1. 메시지를 열지 않는다."
+    putStrLn "0. 메시지를 연다. \n1. 메시지를 열지 않는다."
+    putStr "\n선택: "
+
     select [scene1 player, sceneNotOpened player]
 
 
@@ -212,6 +233,8 @@ scene1 player = do
     printer 10 "비서 로봇: 저랑은 안 됩니다."
     threadDelay 100000
     delayDisplayStr "0: 비서 로봇을 망치로 때린다. \n1: 비서 로봇을 뿅망치로 때린다. \n2: 비서 로봇에게 게임을 하자고 한다."
+    putStr "\n선택: "
+
     select [seDead player, scenePP player, sceneWith player]
 
 
@@ -239,8 +262,8 @@ sceneOut :: String -> IO ()
 sceneOut player = do
         printer 20 "밖으로 나가는 중…"
         printer 10 "어디로 가시겠습니까?"
-        delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
-
+        delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+        putStr "\n선택: "
         superSelect [] player [scenePrototype [] player, sceneJeong [] player, sceneBroad [] player]
 
 
@@ -287,6 +310,8 @@ scenePrototype ints player = do
             ,"1: 녹음 좀 지워 줘."
             ,"2: 너랑 놀고 싶어서."
             , "3: 프로토타입을 뿅망치로 때린다."]
+    putStr "\n선택: "
+
     select [scenePrototype0 ints player, scenePrototype4 ints str player, scenePrototype1 ints player, scenePrototype3 player]
 
 scenePrototype4 :: [Int] -> String-> String -> IO ()
@@ -304,7 +329,8 @@ scenePrototype4 ints str player = do
 
     printer 10 "당신은 시무룩 불쌍해진 채로 쫒겨났다."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+    putStr "\n선택: "
     superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
 
@@ -328,8 +354,8 @@ scenePrototype0 ints player = do
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
-
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+    putStr "\n선택: "
     superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
 scenePrototype1 :: [Int] ->  String -> IO ()
@@ -350,7 +376,7 @@ scenePrototype1 ints player = do
     mapM_ putStrLn [[]
             , "0: 그래. "
             ,"1: 아니."]
-
+    putStr "\n선택: "
     select [scenePrototype2_0 player, scenePrototype2_1 ints player]
 
 
@@ -374,6 +400,8 @@ scenePrototype2_0 player = do
                     ,"    ·····················" ]
 
     putStr "0: 다시 한다."
+    putStr "\n선택: "
+
     select [startGame]
 
 scenePrototype2_1 ::  [Int] -> String ->  IO ()
@@ -383,7 +411,7 @@ scenePrototype2_1 ints player = do
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
 
     superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
@@ -395,6 +423,8 @@ scenePrototype3 player = do
     entertoContinue
     printer 5 "다시 하시겠습니까?"
     printer 5 "0: 다시 한다."
+    putStr "\n선택: "
+
     select [startGame]
 
 sceneJeong :: [Int] -> String ->  IO ()
@@ -416,13 +446,17 @@ sceneJeong ints player = do
     printer 5 "정규리가 당신을 째려본다."
 
     delayDisplayStr "0. 도망간다. \n1. 같이 회의하자고 한다,"
+    putStr "\n선택: "
+
     select [sceneJeong0 ints player, sceneJeong1 ints player]
 
 sceneJeong0 :: [Int] -> String ->  IO ()
 sceneJeong0 ints player = do
     printer 10 "당신은 불쌍해진 채로 쫒겨났다.."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+    putStr "\n선택: "
+
     superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad0 (1:ints) player]
 
 
@@ -432,7 +466,9 @@ sceneJeong1 ints player = do
     printer 3 "정규리: 윤리위원회 회칙 001. 관리자는 윤리위원회에 간섭할 수 없다. 에 의해 그건 불가능합니다."
     printer 10 "당신은 불쌍해진 채로 시무룩해서 쫒겨났다.."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+    putStr "\n선택: "
+
     superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad (1:ints) player]
 
 
@@ -443,6 +479,8 @@ sceneBroad ints player = do
     printer 3 "무엇을 할까?"
 
     mapM_ delayDisplayStr ["0: 같이 게임하자고 사내 방송을 내보낸다."]
+    putStr "\n선택: "
+
     select [sceneBroad0 ints player]
 
 sceneBroad0 :: [Int] -> String ->  IO ()
@@ -471,6 +509,8 @@ sceneBroad0 ints player = do
                         , "남설이 당신을 뽕망치로 때리려고 한다." ]
     printer 2 "0. 사과한다."
     printer 2 "1. 사과하지 않는다."
+    putStr "\n선택: "
+
     select [seol0 ints player, seol1 player]
 
 seol0 :: [Int] -> String ->  IO ()
@@ -480,7 +520,8 @@ seol0 ints  player = do
                                 , "남설: 들어가서 잠이나 자." ]
     printer 10 "당신은 시무룩불쌍새끼고양이가 되어서 쫒겨났다.."
     printer 10 "어디로 가시겠습니까?"
-    delayDisplayStr "0. 프로토타입 방\n 1. 윤리위원회 회의실\n2. 방송실"
+    delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+    putStr "\n선택: "
     superSelect (2:ints) player [scenePrototype (2:ints) player, sceneJeong (2:ints) player, sceneBroad0 (2:ints) player]
 
 
@@ -491,6 +532,7 @@ seol1 player = do
     entertoContinue
     printer 5 "다시 하시겠습니까?"
     printer 5 "0: 다시 한다."
+    putStr "\n선택: "
     select [startGame]
 
 
@@ -513,6 +555,8 @@ sceneFinal player = do
     printer 5 "비서 로봇: 저랑 같이 하실래요?"
 
     putStr "0: 그래. \n: 아니."
+    putStr "\n선택: "
+
     select [sceneFinal0 player, youDie player]
 
 
@@ -551,6 +595,8 @@ sceneFinal0 player = do
 
     threadDelay 100000
     printer 5 "끝을 보았습니다. 원한다면 0을 눌러 처음으로 돌아가세요.."
+    putStr "\n선택: "
+
     printer 5 "0: 다시 한다."
     select [startGame]
 
@@ -562,6 +608,8 @@ youDie player = do
     entertoContinue
     printer 5 "다시 하시겠습니까?"
     printer 5 "0: 다시 한다."
+    putStr "\n선택: "
+
     select [startGame]
 
 ------ASCII------------
