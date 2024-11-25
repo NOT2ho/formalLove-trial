@@ -76,6 +76,7 @@ startGame = do
     hSetEncoding stdout utf8
     hSetBuffering stdout NoBuffering
     putStrLn "인코딩 설정됨.. 글자가 깨지면 사용자 문제입니다."
+    putStrLn "v0.0.1"
     putStrLn "이 게임은 테스트되지 않았습니다. \n문제가 발생했다면 https://github.com/NOT2ho/formalLove-trial 이나 https://x.com/MELC0chopper 로 알려 주십시오."
     putStrLn ""
     entertoContinue
