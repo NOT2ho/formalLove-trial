@@ -65,7 +65,7 @@ delayDisplayStr str = do
 printer :: Int -> String -> IO ()
 printer sec (s:ss) = do
     putStr [s]
-    threadDelay $ 10000 * sec
+    threadDelay $  5000 * sec
     printer sec ss
 printer _ _ = putStrLn ""
 
