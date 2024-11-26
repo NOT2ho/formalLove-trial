@@ -1,14 +1,16 @@
 module Main (main) where
 import Control.Concurrent
+import System.Timeout
 import System.Process
 import Data.List (elemIndex)
 import Control.Monad
 import System.IO
 import Distribution.Compat.Prelude (readMaybe)
+import Data.Functor
+import Data.Foldable (sequenceA_)
+import GHC.IO.Handle (hFlushAll)
 main :: IO ()
 main = startGame
-
-
 
 select ::[IO ()] -> IO ()
 select ios = do
@@ -23,12 +25,11 @@ superSelect is player ios = do
     num <- getLine
     let int = readMaybe num :: Maybe Int
     let jint = Just int
-    case (ios !?) =<< int of        
+    case (ios !?) =<< int of
         Just io ->
                 if length is == 3 then sceneFinal player else
                     (if int `elem` jint then putStr "안 가 본 곳으로 가십시오." >> select ios else io)
         Nothing -> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> select ios
-
 
 
 (!?) :: [a] -> Int -> Maybe a
@@ -65,8 +66,10 @@ delayDisplayStr str = do
 printer :: Int -> String -> IO ()
 printer sec (s:ss) = do
     putStr [s]
-    threadDelay $  5000 * sec
+    forkIO (getChar $> ())
+    timeout 50000 (threadDelay 50000)
     printer sec ss
+
 printer _ _ = putStrLn ""
 
 
@@ -74,9 +77,10 @@ startGame :: IO ()
 startGame = do
     system "chcp 65001"
     hSetEncoding stdout utf8
+    hSetBuffering stdin NoBuffering
     hSetBuffering stdout NoBuffering
     putStrLn "인코딩 설정됨.. 글자가 깨지면 사용자 문제입니다."
-    putStrLn "v0.0.1"
+    putStrLn "v0.1.0"
     putStrLn "이 게임은 테스트되지 않았습니다. \n문제가 발생했다면 https://github.com/NOT2ho/formalLove-trial 이나 https://x.com/MELC0chopper 로 알려 주십시오."
     putStrLn ""
     entertoContinue
@@ -96,10 +100,14 @@ startGame = do
     printer 20 ". . ."
     printer 5  "0을 누르면 처음부터, 1을 누르면 중간 선택지부터 시작입니다."
     putStr "선택: "
-    select [scene0 playerName, superSelect [] playerName [scenePrototype [] playerName, sceneJeong [] playerName, sceneBroad [] playerName]]
+    select [scene0 playerName,
+            sequence_ [printer 10 "어디로 가시겠습니까?"
+            , delayDisplayStr "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+            , putStr "\n선택: "] >>
+            superSelect [] playerName [scenePrototype [] playerName, sceneJeong [] playerName, sceneBroad [] playerName]]
 
-    
-  
+
+
 
 delayPutStrLn :: Int -> String -> IO ()
 delayPutStrLn count str = do
