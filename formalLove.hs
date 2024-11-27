@@ -30,8 +30,8 @@ superSelect is player ios = do
     case (ios !?) =<< int of
         Just io ->
                 if length is == 3 then sceneFinal player else
-                    (if isJust $ int >>= (`elemIndex` is) then clearStdin >> putStr "안 가 본 곳으로 가십시오." >> superSelect is player ios else io)
-        Nothing -> clearStdin >> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> superSelect is player ios
+                    (if isJust $ int >>= (`elemIndex` is) then clearStdin >> putStr "안 가 본 곳으로 가십시오." >> select ios else io)
+        Nothing -> clearStdin >> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> select ios
 
 (!?) :: [a] -> Int -> Maybe a
 xs !? n
