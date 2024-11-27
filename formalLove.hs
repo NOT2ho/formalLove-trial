@@ -361,12 +361,12 @@ scenePrototype4 ints str player = do
     printer 5 $ player ++ ": 알았어! 딴 사람 찾아볼게. 지워 줘."
     entertoContinue
     printer 10 "당신은 시무룩 불쌍해진 채로 쫒겨났다."
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-                                superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
+                            >> putStr "\n선택: "
+                            >> superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
 
 scenePrototype0 :: [Int] -> String -> IO ()
@@ -388,14 +388,12 @@ scenePrototype0 ints player = do
                         ]
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-
-
-                superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
+                            >> putStr "\n선택: "
+                            >> superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
 scenePrototype1 :: [Int] ->  String -> IO ()
 scenePrototype1 ints player = do
@@ -452,12 +450,12 @@ scenePrototype2_1 ints player = do
     printer 10 "프로토타입: 그럼 나가세요. 저 자야 하니까."
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-                        superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
+                            >> putStr "\n선택: "
+                       >> superSelect (0 : ints) player [scenePrototype (0:ints) player, sceneJeong (0:ints) player, sceneBroad0 (0:ints) player]
 
 scenePrototype3 :: [Int] -> String ->  IO ()
 scenePrototype3 ints player = do
@@ -499,12 +497,12 @@ sceneJeong ints player = do
 sceneJeong0 :: [Int] -> String ->  IO ()
 sceneJeong0 ints player = do
     putStr "\n선택: "
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-                            superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad0 (1:ints) player]
+                            >> putStr "\n선택: "
+                            >> superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad0 (1:ints) player]
 
 
 
@@ -515,13 +513,12 @@ sceneJeong1 ints player = do
     delayPutStrLn 5 "어디로 가시겠습니까?"
     delayPutStrLn 3 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
     putStr "\n선택: "
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-
-                        superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad (1:ints) player]
+                            >> putStr "\n선택: "
+                            >> superSelect (1:ints) player [scenePrototype (1:ints) player, sceneJeong (1:ints) player, sceneBroad0 (1:ints) player]
 
 
 
@@ -570,12 +567,12 @@ seol0 ints  player = do
                                 , "남설: 이번만 봐 줄게.."
                                 , "남설: 들어가서 잠이나 자." ]
     delayPutStrLn 5 "당신은 시무룩불쌍새끼고양이가 되어서 쫒겨났다.."
-    if length ints /= 3  then 
+    if length ints /= 3  then sceneFinal player
+                         else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
-                             >> putStr "\n선택: "
-                         else
-                        superSelect (2:ints) player [scenePrototype (2:ints) player, sceneJeong (2:ints) player, sceneBroad0 (2:ints) player]
+                            >> putStr "\n선택: "
+                            >>superSelect (2:ints) player [scenePrototype (2:ints) player, sceneJeong (2:ints) player, sceneBroad0 (2:ints) player]
 
 
 seol1 :: [Int] ->  String ->  IO ()
@@ -665,7 +662,10 @@ youDie player = do
     delayPutStrLn 5 "0: 다시 한다. 1. 방 선택부터 다시(초기화) 2. 방에 돌아와서부터 다시"
     putStr "\n선택: "
 
-    select [startGame, superSelect [] player [scenePrototype [] player, sceneJeong [] player, sceneBroad [] player], sceneFinal player]
+    select [startGame,  delayPutStrLn 10 "어디로 가시겠습니까?"
+                        >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
+                        >> putStr "\n선택: "
+                        >> superSelect [] player [scenePrototype [] player, sceneJeong [] player, sceneBroad [] player], sceneFinal player]
 
 ------ASCII------------
 
