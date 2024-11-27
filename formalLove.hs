@@ -30,8 +30,8 @@ superSelect is player ios = do
     case (ios !?) =<< int of
         Just io ->
                 if length is == 3 then sceneFinal player else
-                    (if isJust $ int >>= (`elemIndex` is) then clearStdin >> putStr "안 가 본 곳으로 가십시오." >> select ios else io)
-        Nothing -> clearStdin >> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> select ios
+                    (if isJust $ int >>= (`elemIndex` is) then clearStdin >> putStr "안 가 본 곳으로 가십시오." >> superSelect is player ios else io)
+        Nothing -> clearStdin >> putStr ("0 부터 " ++ show (length ios - 1) ++ " 중에 고르세요 : ") >> superSelect is player ios
 
 (!?) :: [a] -> Int -> Maybe a
 xs !? n
@@ -84,6 +84,12 @@ printer sec (s:ss) = do
 printer _ _ = putStr "▼\n"
 
 
+name :: IO String
+name = do
+    str <- getLine
+    if null str then putStrLn "system: 이름을 입력하세요. (String)" >> name
+    else return str
+
 
 startGame :: IO ()
 startGame = do
@@ -91,21 +97,21 @@ startGame = do
     hSetEncoding stdout utf8
     hSetBuffering stdin NoBuffering
     hSetBuffering stdout NoBuffering
-    putStrLn "인코딩 설정됨.. 글자가 깨지면 사용자 문제입니다."
+    putStrLn "system: 인코딩 설정됨.. 글자가 깨지면 사용자 문제입니다."
     putStrLn "v0.2.1"
-    putStrLn "이 게임은 잘 테스트되지 않았습니다. \n문제가 발생했다면 https://github.com/NOT2ho/formalLove-trial 이나 https://x.com/MELC0chopper 로 알려 주십시오."
+    putStrLn "system: 이 게임은 잘 테스트되지 않았습니다. \n문제가 발생했다면 https://github.com/NOT2ho/formalLove-trial 이나 https://x.com/MELC0chopper 로 알려 주십시오."
     entertoContinue
-    putStr "이름을 입력하세요 : "
+    putStr "system: 이름을 입력하세요 : "
     clearStdin
-    playerName <- getLine
+    playerName <- name
 
-    printer 10 "확인됨.."
-    printer 5 $ playerName ++ " 님 안녕하세요!"
+    printer 10 "system: 확인됨.."
+    printer 5 $ "system: " ++ playerName ++ " 님 안녕하세요!"
     printer 10 "이 게임은 <사랑은 포르말린에 담가서> 의 텍스트 버전 체험판입니다."
     printer 2 "본게임은 현재 펀딩 중이며 https://tumblbug.com/formallove 에서 볼 수 있습니다! "
     clearStdin
     entertoContinue
-    delayPutStrLn 20 "접속 중.."
+    delayPutStrLn 20 "system: 접속 중.."
     green
     entertoContinue
     printer 5 $ playerName ++ " 님..."
@@ -267,7 +273,8 @@ scene1 player = do
 
 scenePP :: String -> IO ()
 scenePP player = do
-    mapM_ (printer 5) [ player ++ ": 너랑은 안 해."
+    mapM_ (printer 5) [ "뿅"
+                        , player ++ ": 너랑은 안 해."
                         ,  "비서 로봇: 너무하시네요."
                         , "비서 로봇: 같이 하자고 하면 기꺼이 한 판 붙어 주려고 했는데. "]
     entertoContinue
@@ -361,7 +368,7 @@ scenePrototype4 ints str player = do
     printer 5 $ player ++ ": 알았어! 딴 사람 찾아볼게. 지워 줘."
     entertoContinue
     printer 10 "당신은 시무룩 불쌍해진 채로 쫒겨났다."
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -388,7 +395,7 @@ scenePrototype0 ints player = do
                         ]
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -450,7 +457,7 @@ scenePrototype2_1 ints player = do
     printer 10 "프로토타입: 그럼 나가세요. 저 자야 하니까."
     entertoContinue
     printer 10 "당신은 시무룩해진 채로 쫒겨났다."
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -497,7 +504,7 @@ sceneJeong ints player = do
 sceneJeong0 :: [Int] -> String ->  IO ()
 sceneJeong0 ints player = do
     putStr "\n선택: "
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -513,7 +520,7 @@ sceneJeong1 ints player = do
     delayPutStrLn 5 "어디로 가시겠습니까?"
     delayPutStrLn 3 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
     putStr "\n선택: "
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -567,7 +574,7 @@ seol0 ints  player = do
                                 , "남설: 이번만 봐 줄게.."
                                 , "남설: 들어가서 잠이나 자." ]
     delayPutStrLn 5 "당신은 시무룩불쌍새끼고양이가 되어서 쫒겨났다.."
-    if length ints /= 3  then sceneFinal player
+    if length ints == 2  then printer 10 "system: 모든 방을 들러보았기 때문에 원래 방으로 돌아갑니다." >> entertoContinue >>  sceneFinal player
                          else
                             delayPutStrLn 10 "어디로 가시겠습니까?"
                             >> delayPutStrLn 5 "0. 프로토타입 방\n1. 윤리위원회 회의실\n2. 방송실"
@@ -592,6 +599,8 @@ seol1 ints player = do
 
 sceneFinal :: String -> IO ()
 sceneFinal player = do
+    entertoContinue
+
     printer 10 "방으로 돌아온 당신."
     entertoContinue
     printer 10 $ player ++ ": 하.. "
@@ -645,8 +654,7 @@ sceneFinal0 player = do
                         ,"    그렇게 사랑은 싹트고.."
                         ,"    그렇다."
                         ,"    그렇게 된 것이다."]
-
-    threadDelay 100000
+    entertoContinue
     delayPutStrLn 5 "끝을 보았습니다. 원한다면 0을 눌러 처음으로 돌아가세요.."
     putStr "\n선택: "
     printer 5 "0: 다시 한다."
