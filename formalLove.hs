@@ -175,6 +175,7 @@ scene0 player = do
                             , player ++ ": 오늘 같은 평화로운 주말에.."]
     entertoContinue
     printer 10 "비서 로봇: 관리자님, 오늘은 월요일입니다."
+    clearStdin
     delayPutStrLn 10  "0: 비서 로봇을 망치로 때린다. \n1: 비서 로봇을 뿅망치로 때린다. \n2: 비서 로봇을 쓰다듬는다."
     putStr "\n선택: "
 
@@ -303,21 +304,17 @@ sceneOut player = do
 callPrototype :: IO String
 callPrototype = do
     str <- getLine
-    if null str then putStrLn "프로토타입을 부르세요(String)" >> callPrototype
+    if null str then putStrLn "프로토타입을 부르세요 (문자열을 입력하고 엔터를 누르세요.)" >> callPrototype
     else return str
 
 scenePrototype ::  [Int] -> String -> IO ()
 scenePrototype ints player = do
     delayPutStrLn 4 "프로토타입 방 앞에 도착한 당신."
     entertoContinue
-    printer 4 "프로토타입을 부르세요."
+    printer 4 "프로토타입을 부르세요. (문자열을 입력하고 엔터를 누르세요.)"
     putStr "입력 기다리는 중.. : "
     str <- callPrototype
-
     prototype
-
-
-
     mapM_ (printer 10) ["프로토타입: 관리자님."
                         , "프로토타입: " ++ str ++ " 라고 하시는 거"]
     printer 30 "프로토타입: 제가 다 녹음했습니다."
